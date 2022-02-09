@@ -1,0 +1,15 @@
+[color "status"]
+  added = green
+  changed = red bold
+  untracked = magenta bold
+
+[color "branch"]
+  remote = yellow
+[user]
+	email = 10778553+KucicM@users.noreply.github.com
+	name = kucicm
+[credential]
+	helper = store
+[core]
+	editor = vim
+
