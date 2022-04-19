@@ -1,0 +1,4 @@
+
+to get LSP
+snap install gopls
+npm install -g vim-language-server
