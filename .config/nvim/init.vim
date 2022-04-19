@@ -1,95 +1,305 @@
- let g:mapleader = "\<Space>"
+let g:mapleader = "\<Space>"
 syntax on
 syntax enable
-set nocompatible              " be iMproved, required
+" set nocompatible              " be iMproved, required
 filetype off                  " required
-let g:plugged_home = '~/.vim/plugged'
 set tabstop=4
 set shiftwidth=4
 set expandtab
 nnoremap <esc> :noh<return><esc>
+nnoremap <c-s> :w<cr>
 
 " set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-
-" plugin manager
-Plugin 'VundleVim/Vundle.vim'
+call plug#begin()
 
 " colorscheme
-Plugin 'morhetz/gruvbox'
+Plug 'gruvbox-community/gruvbox'
 
 " line indicating which mode
-Plugin 'itchyny/lightline.vim'
+Plug 'itchyny/lightline.vim'
+
+" git branch in lightline
+Plug 'itchyny/vim-gitbranch'
 
 " git
-Plugin 'airblade/vim-gitgutter'
+Plug 'airblade/vim-gitgutter'
+Plug 'stsewd/fzf-checkout.vim'
+Plug 'tpope/vim-fugitive'
 
 " visulize yanked lines
-Plugin 'machakann/vim-highlightedyank'
+Plug 'machakann/vim-highlightedyank'
 
 " open project relative to root of git project
-Plugin 'airblade/vim-rooter'
+Plug 'airblade/vim-rooter'
+
+" Lsp
+Plug 'neovim/nvim-lspconfig'
+
+" fzf
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
 
-"Plugin 'preservim/nerdtree'
-"Plugin 'ciaranm/securemodelines'
+"Plug 'preservim/nerdtree'
+"Plug 'ciaranm/securemodelines'
+
+" autocomplete
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-vsnip'
+Plug 'hrsh7th/vim-vsnip'
 
 
 " All of your Plugins must be added before the following line
-call vundle#end()            " required
+call plug#end()            " required
 
-" Specify a directory for plugins
-" - For Neovim: stdpath('data') . '/plugged'
-" - Avoid using standard Vim directory names like 'plugin'
-call plug#begin('~/.vim/plugged')
-" fuzzy search
-" :Files - search for files
-" :GFiles - search for files inside git
-" :Buffers - open buffer
-" :Lines - search by lines
-" :BLines - search by lines in current buffer
-" :Commits - git blame
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-" Initialize plugin system
-
-" syntax check
-Plug 'w0rp/ale'
-
-" autocomplete
-Plug 'ncm2/ncm2'
-Plug 'roxma/nvim-yarp'
-autocmd BufEnter * call ncm2#enable_for_buffer()
-set completeopt=noinsert,menuone,noselect
-Plug 'ncm2/ncm2-bufword'
-Plug 'ncm2/ncm2-path'
-Plug 'ncm2/ncm2-jedi'
-
-" Formater
-Plug 'Chiel92/vim-autoformat'
-
+" LSP
 " Go
-Plug 'tpope/vim-fugitive'
-Plug 'fatih/vim-go'
-" https://github.com/neoclide/coc.nvim/wiki/Install-coc.nvim
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-" Installs:
-"   CocInstall coc-json coc-go
-"
+lua require'lspconfig'.gopls.setup{}
+lua <<EOF
+local nvim_lsp = require('lspconfig')
 
-" Rust
-Plug 'rust-lang/rust.vim'
-Plug 'rust-analyzer/rust-analyzer'
-" Plug 'racer-rust/vim-racer'
-" Plug 'ncm2/ncm2-racer'
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+local on_attach = function(client, bufnr)
+  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings.
+  local opts = { noremap=true, silent=true }
+  buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+  buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  buf_set_keymap('n', 'ga', '<Cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+  buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+  buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+  buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+  buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+
+  -- Set some keybinds conditional on server capabilities
+  if client.resolved_capabilities.document_formatting then
+    buf_set_keymap("n", "ff", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+  elseif client.resolved_capabilities.document_range_formatting then
+    buf_set_keymap("n", "ff", "<cmd>lua vim.lsp.buf.range_formatting()<CR>", opts)
+  end
+
+  -- Set autocommands conditional on server_capabilities
+  if client.resolved_capabilities.document_highlight then
+    vim.api.nvim_exec([[
+      hi LspReferenceRead cterm=bold ctermbg=DarkMagenta guibg=LightYellow
+      hi LspReferenceText cterm=bold ctermbg=DarkMagenta guibg=LightYellow
+      hi LspReferenceWrite cterm=bold ctermbg=DarkMagenta guibg=LightYellow
+      augroup lsp_document_highlight
+        autocmd! * <buffer>
+        autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
+        autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+      augroup END
+    ]], false)
+  end
+end
+
+nvim_lsp.gopls.setup{
+	cmd = {'gopls'},
+	-- for postfix snippets and analyzers
+	capabilities = capabilities,
+	    settings = {
+	      gopls = {
+		      experimentalPostfixCompletions = true,
+		      analyses = {
+		        unusedparams = true,
+		        shadow = true,
+		     },
+		     staticcheck = true,
+		    },
+	    },
+	on_attach = on_attach,
+}
+
+function goimports(timeoutms)
+    local params = vim.lsp.util.make_range_params()
+    params.context = {only = {"source.organizeImports"}}
+    local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, wait_ms)
+    for _, res in pairs(result or {}) do
+        for _, r in pairs(res.result or {}) do
+            if r.edit then
+                vim.lsp.util.apply_workspace_edit(r.edit)
+            else
+                vim.lsp.buf.execute_command(r.command)
+            end
+        end
+    end
+end
+EOF
+autocmd BufWritePre *.go lua vim.lsp.buf.formatting()
+autocmd BufWritePre *.go lua goimports(1000)
 
 
-Plug 'vim-airline/vim-airline'
-call plug#end()
+"sv Vim language server
+lua require'lspconfig'.vimls.setup{}
+" END LSP
 
-filetype plugin indent on
+" Autocomplete
+set completeopt=menu,menuone,noselect
 
+lua <<EOF
+  -- Setup nvim-cmp.
+  local cmp = require'cmp'
+
+  cmp.setup({
+  snippet = {
+      -- REQUIRED - you must specify a snippet engine
+      expand = function(args)
+      vim.fn["vsnip#anonymous"](args.body)
+  end,
+  },
+    mapping = {
+        ['<C-p>'] = cmp.mapping.select_prev_item(),
+        ['<C-n>'] = cmp.mapping.select_next_item(),
+        ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+        ['<C-f>'] = cmp.mapping.scroll_docs(4),
+        ['<C-Space>'] = cmp.mapping.complete(),
+        ['<C-e>'] = cmp.mapping.close(),
+        ['<CR>'] = cmp.mapping.confirm {
+            behavior = cmp.ConfirmBehavior.Replace,
+            select = true,
+            },
+        ['<Tab>'] = function(fallback)
+            if cmp.visible() then
+                cmp.select_next_item()
+            elseif luasnip.expand_or_jumpable() then
+                luasnip.expand_or_jump()
+            else
+                fallback()
+            end
+        end,
+        ['<S-Tab>'] = function(fallback)
+            if cmp.visible() then
+                cmp.select_prev_item()
+            elseif luasnip.jumpable(-1) then
+                luasnip.jump(-1)
+            else
+                fallback()
+            end
+        end,
+    },
+    sources = cmp.config.sources({
+    { name = 'nvim_lsp' },
+    { name = 'vsnip' }, -- For vsnip users.
+    }, {
+    { name = 'buffer' },
+    })
+})
+
+  -- Set configuration for specific filetype.
+  cmp.setup.filetype('gitcommit', {
+    sources = cmp.config.sources({
+      { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
+    }, {
+      { name = 'buffer' },
+    })
+  })
+
+  -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline('/', {
+    sources = {
+      { name = 'buffer' }
+    }
+  })
+
+  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+  cmp.setup.cmdline(':', {
+    sources = cmp.config.sources({
+      { name = 'path' }
+    }, {
+      { name = 'cmdline' }
+    })
+  })
+
+  -- Setup lspconfig.
+  local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+  -- Replace <YOUR_LSP_SERVER> with each lsp server you've enabled.
+  --require('lspconfig')['<YOUR_LSP_SERVER>'].setup {
+    --capabilities = capabilities
+  --}
+  -- Enable some language servers with the additional completion capabilities offered by nvim-cmp
+  local lspconfig = require('lspconfig')
+  local servers = { 'gopls', 'rust_analyzer', 'pyright' }
+  for _, lsp in ipairs(servers) do
+      lspconfig[lsp].setup {
+          -- on_attach = my_custom_on_attach,
+          capabilities = capabilities,
+          }
+  end
+EOF
+" End autocomplete
+
+" fzf 
+" git status
+nnoremap <silent> <leader>s :GFiles?<CR>
+
+nnoremap <silent> <leader>g :GFiles<CR>
+nnoremap <silent> <leader>G :Files<CR>
+
+" toggles between buffers
+nnoremap <leader><leader> <c-^>
+
+nnoremap <silent> <leader>c :Commits<CR>
+nnoremap <silent> <leader>C :BCommits<CR>
+
+nnoremap <silent> <leader>l :BLines<CR>
+nnoremap <silent> <leader>L :Lines<CR>
+
+nnoremap <silent> <leader>b :Buffers<CR>
+nnoremap <silent> <leader>w :Windows<CR>
+" end fzf
+
+" status line
+
+" remove default status
+set noshowmode
+
+set laststatus=2
+
+let g:lightline = {
+    \ 'colorscheme': 'wombat',
+    \ 'mode_map': {
+        \ 'n' : 'N',
+        \ 'i' : 'I',
+        \ 'R' : 'R',
+        \ 'v' : 'V',
+        \ 'V' : 'VL',
+        \ "\<C-v>": 'VB',
+        \ 'c' : 'C',
+        \ 's' : 'S',
+        \ 'S' : 'SL',
+        \ "\<C-s>": 'SB',
+        \ 't': 'T',
+        \ },
+    \ 'active': {
+        \ 'right': [[ 'lineinfo' ], [ 'percent' ], [ 'fileformat', 'fileencoding', 'filetype' ]],
+        \ 'left': [[ 'mode', 'paste'], [ 'gitbranch', 'readonly', 'filename', 'modified' ]]
+    \},
+    \ 'component_function': {
+        \ 'gitbranch': 'gitbranch#name',
+    \ }
+\ }
+
+
+" status line end
 
 " looks
 "Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
@@ -110,32 +320,10 @@ endif
 
 let g:gruvbox_italic=1
 colorscheme gruvbox
-
+set background=dark
 
 " added line numbers
 set number relativenumber
-
-" change status bar
-set noshowmode  " to get rid of thing like --INSERT--
-set noshowcmd  " to get rid of display of last command
-set shortmess+=F  " to get rid of the file name displayed in the command line bar
-
-set laststatus=2
-let g:lightline = {
-    \ 'component_function': {
-    \   'filename': 'LightlineFilename',
-    \ },
-    \ 'colorscheme': 'wombat',
-\ }
-function! LightlineFilename()
-  let root = fnamemodify(get(b:, 'git_dir'), ':h')
-  let path = expand('%:p')
-  if path[:len(root)-1] ==# root
-    return path[len(root)+1:]
-  endif
-  return expand('%')
-endfunction
-" end of change status bar
 
 " selection color
 hi Visual  guifg=#000000 guibg=#FFFFFF gui=none
@@ -155,247 +343,55 @@ set signcolumn=yes
 set updatetime=100
 
 " end git changes
-
-
 " end of looks
-"
 
-" ale setup
-let g:ale_fix_on_save = 1
-let g:ale_lint_on_text_changed = 'always'
-let g:ale_lint_on_insert_leave = 1
-let g:ale_lint_on_enter = 1
-
-let g:ale_set_quickfix = 1
-let b:ale_fixers = {'python': ['autopep8', 'flake8']}
-let g:ale_fixers = {
-\   '*': ['remove_trailing_lines', 'trim_whitespace'],
-\   'python': ['autopep8'],
-\   'rust': ['rustfmt', 'rls', 'rust-analyzer'],
-\}
-
-" Use ALE and also some plugin 'foobar' as completion sources for all code.
-let g:ale_completion_autoimport = 1
-
-" jumping between errors
-nmap <silent> <C-k> <Plug>(ale_previous_wrap)
-nmap <silent> <C-j> <Plug>(ale_next_wrap)
-" end of ale setup
-
-
-" fzf config
-
-let g:fzf_nvim_statusline = 0 " disable statusline overwriting
-nnoremap <silent> <c-\> :GFiles<CR>
-nnoremap <silent> <leader>a :Buffers<CR>
-nnoremap <silent> <leader>A :Windows<CR>
-nnoremap <silent> <c-f> :BLines<CR>
-nnoremap <silent> <c-F> :Lines<CR>
-nnoremap <silent> <leader>? :History<CR>
-nnoremap <silent> <leader>c :Commits<CR>
-nnoremap <silent> <leader>C :BCommits<CR>
-
-" end fzf config
-
-" <leader><leader> toggles between buffers
-nnoremap <leader><leader> <c-^>
+" git
+nnoremap <leader>gc :GBranches<CR>
+let g:fzf_branch_actions = {
+      \ 'track': {'keymap': 'ctrl-t'},
+      \}
+nmap <leader>gh :diffget //3<CR>
+nmap <leader>gu :diffget //2<CR>
+nmap <leader>gs :G<CR>
+nmap <leader>cc :Git commit<CR>
+" end git
 
 
 " suppress the annoying 'match x of y', 'The only match' and 'Pattern not
 " found' messages
 set shortmess+=c
 
-" CTRL-C doesn't trigger the InsertLeave autocmd . map to <ESC> instead.
-inoremap <c-c> <ESC>
-
-" When the <Enter> key is pressed while the popup menu is visible, it only
-" hides the menu. Use this mapping to close the menu and also start a new
-" line.
-inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
-
 " Use <TAB> to select the popup menu:
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
-
-
-let g:LanguageClient_serverCommands = {
-            \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
-            \ 'python': ['/usr/local/bin/pyls'],
-            \ 'go': ['gopls'],
-            \ }
 
 " persistant undo
 set undodir=~/.vimid
 set undofile
 
 
-
-
-set clipboard+=unnamedplus
 set ttimeoutlen=0
 
-" Rust
-"let g:racer_cmd = "/home/user/.cargo/bin/racer"
-let g:rustfmt_autosave = 1
-let g:rust_clip_command = 'xclip -selection clipboard'
-"let g:racer_experimental_completer = 1
-"let g:racer_insert_paren = 1
-
-
-" Haskell
-let g:haskell_enable_quantification = 1   " to enable highlighting of `forall`
-let g:haskell_enable_recursivedo = 1      " to enable highlighting of `mdo` and `rec`
-let g:haskell_enable_arrowsyntax = 1      " to enable highlighting of `proc`
-let g:haskell_enable_pattern_synonyms = 1 " to enable highlighting of `pattern`
-let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
-let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
-let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
-
-" Go
-filetype plugin indent on
-
-set autowrite
-
-autocmd BufWritePre *.go:call LanguageClient#textDocument_formatting_sync()
-"let g:go_highlight_build_constraints = 1
-"let g:go_highlight_extra_types = 1
-"let g:go_highlight_fields = 1
-"let g:go_highlight_functions = 1
-"let g:go_highlight_methods = 1
-"let g:go_highlight_operators = 1
-"let g:go_highlight_structs = 1
-"let g:go_highlight_types = 1
-"let g:go_auto_sameids = 1
-let g:go_highlight_fields = 1
-let g:go_highlight_functions = 1
-let g:go_highlight_function_calls = 1
-let g:go_highlight_extra_types = 1
-let g:go_highlight_operators = 1
-let g:go_fmt_autosave = 1
-let g:go_fmt_command = "goimports"
-"let g:go_def_mode='gopls'
-"let g:go_info_mode='gopls'
-let g:acp_completeoptPreview = 1
-let g:go_auto_type_info = 1
-
-
-
-
-
-
-" -------------------------------------------------------------------------------------------------
-" coc.nvim default settings
-" -------------------------------------------------------------------------------------------------
-" Set internal encoding of vim, not needed on neovim, since coc.nvim using some
-" unicode characters in the file autoload/float.vim
-set encoding=utf-8
-
-" TextEdit might fail if hidden is not set.
-set hidden
-"
-" Some servers have issues with backup files, see #649.
-set nobackup
-set nowritebackup
-"
-" Give more space for displaying messages.
-set cmdheight=2
-
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
-set updatetime=100
-
-" Don't pass messages to |ins-completion-menu|.
-set shortmess+=c
-
-" Always show the signcolumn, otherwise it would shift the text each time
-" diagnostics appear/become resolved.
-if has("nvim-0.5.0") || has("patch-8.1.1564")
-  " Recently vim can merge signcolumn and number column into one
-  set signcolumn=number
-else
-  set signcolumn=yes
-endif
-
-" Use tab for trigger completion with characters ahead and navigate.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-" Use <c-space> to trigger completion.
-if has('nvim')
-  inoremap <silent><expr> <c-space> coc#refresh()
-else
-  inoremap <silent><expr> <c-@> coc#refresh()
-endif
-
-" Make <CR> auto-select the first completion item and notify coc.nvim to
-" format on enter, <cr> could be remapped by other vim plugin
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-" Use `[g` and `]g` to navigate diagnostics
-" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-" GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
-
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
-    call CocActionAsync('doHover')
-  else
-    execute '!' . &keywordprg . " " . expand('<cword>')
-  endif
-endfunction
-
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
-" Symbol renaming.
-nmap <leader>rn <Plug>(coc-rename)
-
-" Formatting selected code.
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
-
-let g:go_def_mapping_enabled = 0
-
-" -------------------------------------------------------------------------------------------------
-" END coc.nvim default settings
-" -------------------------------------------------------------------------------------------------
-"
-
+" keep it at the center
 nnoremap n nzzzv
 nnoremap N Nzzzv
 
+" better u
 inoremap , ,<c-g>u
 inoremap . .<c-g>u
 inoremap ! !<c-g>u
 inoremap ? ?<c-g>u
 
+" visual mode move line up down
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
+
+" insert mode move line up down
 inoremap <C-j> <esc>:m .+1<CR>==
 inoremap <C-k> <esc>:m .-2<CR>==
+
+" normal mode move line up down
 nnoremap <leader>j :m .+1<CR>==
 nnoremap <leader>k :m .-2<CR>==
 

@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =0
+let g:netrw_dirhist_0='/home/mkucic/prepos/simple-to-do'
+let g:netrw_dirhist_9='/home/mkucic/prepos/simple-to-do/src'
+let g:netrw_dirhist_8='/home/mkucic/prepos/simple-to-do/src/processor'
+let g:netrw_dirhist_7='/home/mkucic/prepos/simple-to-do/src'
+let g:netrw_dirhist_6='/home/mkucic/prepos/simple-to-do/src/processor'
+let g:netrw_dirhist_5='/home/mkucic/prepos/simple-to-do/src'
+let g:netrw_dirhist_4='/home/mkucic/prepos/simple-to-do/src/ui'
+let g:netrw_dirhist_3='/home/mkucic/prepos/simple-to-do/src'
+let g:netrw_dirhist_2='/home/mkucic/prepos/simple-to-do'
+let g:netrw_dirhist_1='/home/mkucic/prepos/simple-to-do/src/ui'
