@@ -15,3 +15,7 @@ sudo snap remove gopls
 # node
 sudo apt remove nodejs -y
 sudo apt remove npm -y
+
+# i3
+sudo apt remove maim -y
+
