@@ -6,3 +6,5 @@ sudo rm -r /usr/local/share/nvim/
 sudo rm -rf /home/repos/neovim
 rm -rf ~/.vim
 rm -rf ~/.vimd
+
+sudo snap remove gopls 
