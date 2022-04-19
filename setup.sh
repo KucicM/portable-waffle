@@ -8,7 +8,7 @@ sudo apt upgrade -y
 sudo apt install -y curl git software-properties-common ansible
 
 # pull ansible
-sudo ansible-playbook rebuild.yaml -i 127.0.0.1, --connection=local -K
+sudo ansible-playbook rebuild.yaml -i 127.0.0.1, --connection=local
 
 sudo apt autoremove -y
 
