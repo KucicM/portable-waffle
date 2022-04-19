@@ -1,0 +1,14 @@
+---
+ - hosts: all
+   tasks:
+   - name: Pull neovim
+     git:
+       repo: https://github.com/neovim/neovim.git
+       dest: /home/repos/neovim
+       clone: yes
+       update: yes
+   - name: Install neovim
+     shell: |
+        cd /home/repos/neovim 
+        make CMAKE_BUILD_TYPE=RelWithDebInfo
+        sudo make install
