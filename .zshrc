@@ -13,7 +13,7 @@ autoload -Uz compinit
 compinit
 
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="juanghurtado"
+ZSH_THEME="af-magic"
 
 plugins=(git)
 

@@ -14,3 +14,7 @@ sudo apt autoremove -y
 
 
 ln -srf .config/nvim ~/.config/nvim 
+ln -srf .config/i3 ~/.config/i3
+ln -srf .tmux.conf ~/.tmux.conf
+ln -srf .gitconfig ~/.gitconfig
+ln -srf .zshrc ~/.zshrc

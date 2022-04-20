@@ -17,5 +17,11 @@ sudo apt remove nodejs -y
 sudo apt remove npm -y
 
 # i3
+rm -rf ~/.config/i3 
+sudo apt remove i3 -y
+sudo apt remove i3-gaps -y
 sudo apt remove maim -y
+sudo add-apt-repository -r ppa:kgilmer/speed-ricer
 
+
+sudo apt autoremove -y
