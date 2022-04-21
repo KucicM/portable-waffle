@@ -18,3 +18,6 @@ ln -srf .config/i3 ~/.config/i3
 ln -srf .tmux.conf ~/.tmux.conf
 ln -srf .gitconfig ~/.gitconfig
 ln -srf .zshrc ~/.zshrc
+ln -srf .xinitrc ~/.xinitrc
+ln -srf .Xresources ~/.Xresources
+
